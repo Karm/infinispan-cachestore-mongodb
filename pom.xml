@@ -4,7 +4,7 @@
 
     <groupId>org.infinispan</groupId>
     <artifactId>infinispan-cachestore-mongodb</artifactId>
-    <version>8.2.1-SNAPSHOT</version>
+    <version>8.2.1.karm-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Infinispan MongoDB CacheStore</name>
     <description>Infinispan MongoDB CacheStore module</description>

@@ -13,6 +13,8 @@ import org.bson.types.Binary;
 import org.infinispan.persistence.mongodb.configuration.MongoDBStoreConfiguration;
 import org.infinispan.persistence.mongodb.store.MongoDBEntry;
 import org.infinispan.util.TimeService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,7 +32,9 @@ import static com.mongodb.client.model.Sorts.descending;
  * @author gustavonalle
  */
 public class MongoDBCacheImpl<K, V> implements MongoDBCache<K, V> {
-   private static final int pagingSize = 1024;
+   private static final Logger LOGGER = Logger.getLogger(MongoDBCacheImpl.class.getName());
+   //TODO: Make it configurable and create a PR
+   private static final int pagingSize = 8192;
    private final TimeService timeService;
    private MongoClient mongoClient;
    private MongoCollection<Document> collection;
@@ -117,6 +121,7 @@ public class MongoDBCacheImpl<K, V> implements MongoDBCache<K, V> {
 
    @Override
    public List<MongoDBEntry<K, V>> removeExpiredData(byte[] lastKey) {
+      long timestamp = System.currentTimeMillis();
       long time = timeService.wallClockTime();
 
       Bson filter = and(lte("expiryTime", new Date(time)), gt("expiryTime", new Date(-1)));
@@ -131,6 +136,7 @@ public class MongoDBCacheImpl<K, V> implements MongoDBCache<K, V> {
       iterable.map(this::createEntry).into(listOfExpiredEntries);
 
       collection.deleteMany(filter);
+      LOGGER.log(Level.WARNING, "removeExpiredData took " + (System.currentTimeMillis() - timestamp));
       return listOfExpiredEntries;
    }
 
